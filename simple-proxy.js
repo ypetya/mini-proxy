@@ -1,8 +1,8 @@
 var http= require('http'),
     console= require('console'),
-    Builder= require('./pretty-print');
+    Builder= require('./utils/pretty-print');
 
-module.exports=SimpleProxy
+module.exports=SimpleProxy;
 
 // fwdOptions: { hostname: String, port: Number, pathCb: String:function(String)}
 function SimpleProxy(regex, fwdOptions) {

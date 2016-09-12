@@ -1,15 +1,12 @@
 // RULES - always reloaded
 var console = require('console'),
     fs = require('fs'),
-    StaticServlet = require('./static-servlet');
+    StaticServlet = require('./server/static-servlet');
     staticServlet = new StaticServlet(),
     ForwardServlet = require('./simple-proxy'),
-    index = new ForwardServlet(/index/, {
-      hostname: 'index.hu',
-      port: 80,
-      pathCb: function(origPath) {
-        return '/';
-      }
+    index = new ForwardServlet(/^\/api/, {
+      hostname: 'apihost',
+      port: 80
     });
 
 module.exports = [

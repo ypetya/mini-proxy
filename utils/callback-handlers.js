@@ -1,7 +1,6 @@
+module.exports=CallbackHandlers;
 
-function Callbacks() {}
-
-Callbacks.prototype.handle = function(request) {
+function CallbackHandlers(request) {
     var handler,
         rules=reloadRules(),
         rulesSize=Object.keys(rules).length;
@@ -12,12 +11,9 @@ Callbacks.prototype.handle = function(request) {
         }
     }
     return null;
-};
-
-module.exports=Callbacks;
-
+}
 
 function reloadRules() {
-    delete require.cache[require.resolve('./rules')];
-    return require('./rules');
+    delete require.cache[require.resolve('../rules')];
+    return require('../rules');
 }
