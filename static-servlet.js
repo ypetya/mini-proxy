@@ -1,4 +1,4 @@
-var util = require('util'),
+var console = require('console'),
     fs = require('fs'),
     url = require('url');
 
@@ -52,9 +52,9 @@ StaticServlet.prototype.sendError_ = function (req, res, error) {
     res.write('<!doctype html>\n');
     res.write('<title>Internal Server Error</title>\n');
     res.write('<h1>Internal Server Error</h1>');
-    res.write('<pre>' + escapeHtml(util.inspect(error)) + '</pre>');
-    util.puts('500 Internal Server Error');
-    util.puts(util.inspect(error));
+    res.write('<pre>' + escapeHtml(JSON.stringify(error)) + '</pre>');
+    console.log('500 Internal Server Error');
+    console.log(JSON.stringify(error));
 };
 
 StaticServlet.prototype.sendMissing_ = function (req, res, path) {
@@ -71,7 +71,7 @@ StaticServlet.prototype.sendMissing_ = function (req, res, path) {
         ' was not found on this server.</p>'
     );
     res.end();
-    util.puts('404 Not Found: ' + path);
+    console.log('404 Not Found: ' + path);
 };
 
 StaticServlet.prototype.sendForbidden_ = function (req, res, path) {
@@ -87,7 +87,7 @@ StaticServlet.prototype.sendForbidden_ = function (req, res, path) {
         escapeHtml(path) + ' on this server.</p>'
     );
     res.end();
-    util.puts('403 Forbidden: ' + path);
+    console.log('403 Forbidden: ' + path);
 };
 
 StaticServlet.prototype.sendRedirect_ = function (req, res, redirectUrl) {
@@ -104,7 +104,7 @@ StaticServlet.prototype.sendRedirect_ = function (req, res, redirectUrl) {
         '">here</a>.</p>'
     );
     res.end();
-    util.puts('301 Moved Permanently: ' + redirectUrl);
+    console.log('301 Moved Permanently: ' + redirectUrl);
 };
 
 StaticServlet.prototype.sendFile_ = function (req, res, path) {
