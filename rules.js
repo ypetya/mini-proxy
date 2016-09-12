@@ -2,7 +2,15 @@
 var console = require('console'),
     fs = require('fs'),
     StaticServlet = require('./static-servlet');
-    staticServlet = new StaticServlet();
+    staticServlet = new StaticServlet(),
+    ForwardServlet = require('./simple-proxy'),
+    index = new ForwardServlet(/index/, {
+      hostname: 'index.hu',
+      port: 80,
+      pathCb: function(origPath) {
+        return '/';
+      }
+    });
 
 module.exports = [
     {
@@ -18,6 +26,9 @@ module.exports = [
             res.end();
         }
     },
+
+    index,
+
     // === LAST RULE =======
     staticServlet
 ];
