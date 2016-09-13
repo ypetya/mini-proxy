@@ -7,7 +7,7 @@ function CallbackHandlers(request) {
     for(var i=0;i< rulesSize;i++) {
         var rule=rules[i];
         if(rule.matches(request)) {
-            return rule.requestHandler;
+            return rule.requestHandler.bind(rule);
         }
     }
     return null;
