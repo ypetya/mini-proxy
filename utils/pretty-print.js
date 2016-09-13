@@ -8,7 +8,21 @@ function Builder(options) {
             str += ' ';
         }
         str += o + ': ';
-        str += String(options[o]);
+        var val = options[o],
+            ret = this;
+        if(typeof(val)=='object') {
+            ret = this.addJson(val);
+        } else {
+            str += String(options[o]);
+        }
+        return ret;
+    };
+
+    this.addJson=function (o) {
+        if(str){
+            str += '\n';
+        }
+        str += JSON.stringify(o, null, 3);
         return this;
     };
 
