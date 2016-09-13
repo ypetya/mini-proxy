@@ -48,7 +48,7 @@ function HttpProxy(regex, fwdOptions) {
                 req2.write(data);
             }.bind(this));
             req.on('end', function () {
-                console.log('req2 close');
+                console.log('Request closed');
                 req2.end();
             });
         } else {
@@ -61,15 +61,16 @@ function HttpProxy(regex, fwdOptions) {
     this.createForwardRequest = function (incomingRequest, responseToIncoming) {
         this.createOptions(incomingRequest);
         var newRequest = this.createRequest(this.options, function (responseFromOutgoing) {
-            console.log('status: ' + responseFromOutgoing.statusCode);
+            console.log('Response status: ' + responseFromOutgoing.statusCode);
             responseToIncoming.writeHead(responseFromOutgoing.statusCode, responseFromOutgoing.headers);
 
             if (passThrough(incomingRequest, responseToIncoming, responseFromOutgoing)) {
+                // TODO insert processing here
                 responseFromOutgoing.pipe(responseToIncoming);
             }
 
             responseFromOutgoing.on('end', function () {
-                console.log('resp in close');
+                console.log('Response closed');
                 responseToIncoming.end();
             });
         });
@@ -121,11 +122,10 @@ function HttpProxy(regex, fwdOptions) {
 
     function transformData(data) {
         var _strData = data.toString();
-        logData(_strData);
+        //logData(_strData);
         if (typeof(fwdOptions.dataCb) == 'function') {
             _strData = fwdOptions.dataCb(_strData);
         }
-        // how to create buffer?
         return _strData;
     }
 
@@ -146,7 +146,8 @@ function HttpProxy(regex, fwdOptions) {
 function logImportantOptions(options) {
     var formatted = new Builder(options);
 
-    formatted.add('method').add('hostname').add('port').add('path').add('headers');
+    formatted.add('method').add('hostname').add('port').add('path');
+        //.add('headers');
 
     console.log('FWD TO ' + formatted.build());
 }
