@@ -1,31 +1,23 @@
 // RULES - always reloaded
 var console = require('console'),
     fs = require('fs'),
-    StaticServlet = require('./server/static-servlet');
-    staticServlet = new StaticServlet(),
-    ForwardServlet = require('./simple-proxy'),
-    index = new ForwardServlet(/^\/api/, {
-      hostname: 'apihost',
-      port: 80
-    });
+
+    StaticFileServer = require('./server/static-file-server'),
+    staticFiles = new StaticFileServer(),
+
+    testEndpoint = require('./server/test-endpoint-server'),
+
+    ForwardServlet = require('./server/simple-proxy');
 
 module.exports = [
-    {
-        matches: function (request) {
-            return request.url.path.indexOf('TEST') > -1;
-        },
-        requestHandler: function(request,res) {
-            res.writeHead(200, {
-                'Content-Type': 'text/plain'
-            });
 
-            res.write('PROXY is UP');
-            res.end();
-        }
-    },
+    testEndpoint,
 
-    index,
+    staticFiles,
 
-    // === LAST RULE =======
-    staticServlet
+    new ForwardServlet(/^\/api/, {
+        hostname: 'apiserver',
+        port: 80
+    })
+
 ];

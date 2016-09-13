@@ -5,16 +5,16 @@ var console = require('console'),
 /**
  * Handles static content.
  */
-function StaticServlet() {
+function StaticFileServer() {
 
     this.matches = function () {
         return true;
     };
 
-    this.requestHandler = StaticServlet.prototype.requestHandler.bind(this);
+    this.requestHandler = StaticFileServer.prototype.requestHandler.bind(this);
 }
 
-StaticServlet.MimeMap = {
+StaticFileServer.MimeMap = {
     'txt': 'text/plain',
     'html': 'text/html',
     'css': 'text/css',
@@ -28,7 +28,7 @@ StaticServlet.MimeMap = {
     'svg': 'image/svg+xml'
 };
 
-StaticServlet.prototype.requestHandler = function (req, res) {
+StaticFileServer.prototype.requestHandler = function (req, res) {
     var self = this;
     var path = ('./' + req.url.pathname).replace('//', '/').replace(/%(..)/g, function (match, hex) {
         return String.fromCharCode(parseInt(hex, 16));
@@ -45,7 +45,7 @@ StaticServlet.prototype.requestHandler = function (req, res) {
     });
 };
 
-StaticServlet.prototype.sendError_ = function (req, res, error) {
+StaticFileServer.prototype.sendError_ = function (req, res, error) {
     res.writeHead(500, {
         'Content-Type': 'text/html'
     });
@@ -57,7 +57,7 @@ StaticServlet.prototype.sendError_ = function (req, res, error) {
     console.log(JSON.stringify(error));
 };
 
-StaticServlet.prototype.sendMissing_ = function (req, res, path) {
+StaticFileServer.prototype.sendMissing_ = function (req, res, path) {
     path = path.substring(1);
     res.writeHead(404, {
         'Content-Type': 'text/html'
@@ -74,7 +74,7 @@ StaticServlet.prototype.sendMissing_ = function (req, res, path) {
     console.log('404 Not Found: ' + path);
 };
 
-StaticServlet.prototype.sendForbidden_ = function (req, res, path) {
+StaticFileServer.prototype.sendForbidden_ = function (req, res, path) {
     path = path.substring(1);
     res.writeHead(403, {
         'Content-Type': 'text/html'
@@ -90,7 +90,7 @@ StaticServlet.prototype.sendForbidden_ = function (req, res, path) {
     console.log('403 Forbidden: ' + path);
 };
 
-StaticServlet.prototype.sendRedirect_ = function (req, res, redirectUrl) {
+StaticFileServer.prototype.sendRedirect_ = function (req, res, redirectUrl) {
     res.writeHead(301, {
         'Content-Type': 'text/html',
         'Location': redirectUrl
@@ -107,11 +107,11 @@ StaticServlet.prototype.sendRedirect_ = function (req, res, redirectUrl) {
     console.log('301 Moved Permanently: ' + redirectUrl);
 };
 
-StaticServlet.prototype.sendFile_ = function (req, res, path) {
+StaticFileServer.prototype.sendFile_ = function (req, res, path) {
     var self = this;
     var file = fs.createReadStream(path);
     res.writeHead(200, {
-        'Content-Type': StaticServlet.
+        'Content-Type': StaticFileServer.
             MimeMap[path.split('.').pop()] || 'text/plain'
     });
     if (req.method === 'HEAD') {
@@ -127,7 +127,7 @@ StaticServlet.prototype.sendFile_ = function (req, res, path) {
     }
 };
 
-StaticServlet.prototype.sendDirectory_ = function (req, res, path) {
+StaticFileServer.prototype.sendDirectory_ = function (req, res, path) {
     var self = this;
     if (path.match(/[^\/]$/)) {
         req.url.pathname += '/';
@@ -156,7 +156,7 @@ StaticServlet.prototype.sendDirectory_ = function (req, res, path) {
     });
 };
 
-StaticServlet.prototype.writeDirectoryIndex_ = function (req, res, path, files) {
+StaticFileServer.prototype.writeDirectoryIndex_ = function (req, res, path, files) {
     path = path.substring(1);
     res.writeHead(200, {
         'Content-Type': 'text/html'
@@ -190,4 +190,4 @@ function escapeHtml(value) {
         replace('"', '&quot;');
 }
 
-module.exports = StaticServlet;
+module.exports = StaticFileServer;

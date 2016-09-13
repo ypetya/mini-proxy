@@ -1,6 +1,6 @@
 var http = require('http'),
     console = require('console'),
-    Builder = require('./utils/pretty-print');
+    Builder = require('../utils/pretty-print');
 
 module.exports = SimpleProxy;
 
