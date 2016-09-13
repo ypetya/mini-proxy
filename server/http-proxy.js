@@ -4,7 +4,7 @@ var http = require('http'),
     Builder = require('../utils/pretty-print'),
     qs = require('querystring');
 
-module.exports = SimpleProxy;
+module.exports = HttpProxy;
 
 /*
  API:
@@ -18,7 +18,7 @@ module.exports = SimpleProxy;
  passThrough: Boolean:function(req,response to local connection, response from remote endpoint)
  }
  */
-function SimpleProxy(regex, fwdOptions) {
+function HttpProxy(regex, fwdOptions) {
 
     this.createRequest = http.request;
 
@@ -31,28 +31,37 @@ function SimpleProxy(regex, fwdOptions) {
     };
 
     this.requestHandler = function forward(req, res) {
-        var postData = req.method === 'POST' || req.method === 'PUT';
+        var postData = req.method === 'POST' || req.method === 'PUT',
+            req2;
+
+        this.headers = clone(req.headers);
+
+
         if (postData) {
             req.on('data', function (data) {
-                data = transformData(data); // TODO recalculate Content-Length
+                data = transformData(data);
+
+                if (!req2) {
+                    this.createHeaders(Buffer.byteLength(data));
+                    req2 = this.createForwardRequest(req, res);
+                }
                 req2.write(data);
-            });
+            }.bind(this));
             req.on('end', function () {
                 console.log('req2 close');
                 req2.end();
             });
-        }
-
-        this.options = createOptions(req);
-
-        var req2 = this.createForwardRequest(req, res);
-        if(!postData) {
+        } else {
+            this.createHeaders();
+            req2 = this.createForwardRequest(req, res);
             req2.end();
         }
     };
 
     this.createForwardRequest = function (incomingRequest, responseToIncoming) {
+        this.createOptions(incomingRequest);
         var newRequest = this.createRequest(this.options, function (responseFromOutgoing) {
+            console.log('status: ' + responseFromOutgoing.statusCode);
             responseToIncoming.writeHead(responseFromOutgoing.statusCode, responseFromOutgoing.headers);
 
             if (passThrough(incomingRequest, responseToIncoming, responseFromOutgoing)) {
@@ -68,16 +77,21 @@ function SimpleProxy(regex, fwdOptions) {
         return newRequest;
     };
 
-    function createOptions(req) {
-        var headers = JSON.parse(JSON.stringify(req.headers));
-        headers.host = fwdOptions.hostname;
+    this.createHeaders = function (contentLength) {
+        this.headers.host = fwdOptions.hostname;
+        if (contentLength !== undefined) {
+            this.headers['content-length'] = contentLength;
+        }
+        this.headers = transformHeaders(this.headers);
+    };
 
+    this.createOptions = function (req) {
         var options = {
             port: fwdOptions.port,
             hostname: fwdOptions.hostname,
             method: req.method,
             path: transformPath(req.url.path),
-            headers: transformHeaders(headers)
+            headers: this.headers
         };
 
         if (fwdOptions.protocol == 'https') {
@@ -88,8 +102,8 @@ function SimpleProxy(regex, fwdOptions) {
         }
 
         logImportantOptions(options);
-        return options;
-    }
+        this.options = options;
+    };
 
     function transformPath(path) {
         if (typeof(fwdOptions.pathCb) == "function") {
@@ -141,4 +155,8 @@ function logJson(obj) {
     var formatted = new Builder();
     formatted.addJson(obj);
     console.log(formatted.build());
+}
+
+function clone(o) {
+    return JSON.parse(JSON.stringify(o));
 }
