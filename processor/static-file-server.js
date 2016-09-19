@@ -2,9 +2,12 @@ var console = require('console'),
     fs = require('fs'),
     url = require('url');
 
+module.exports = StaticFileServer;
+
 /**
  * Handles static content.
  */
+
 function StaticFileServer() {
 
     this.matches = function () {
@@ -189,5 +192,3 @@ function escapeHtml(value) {
         replace('>', '&gt;').
         replace('"', '&quot;');
 }
-
-module.exports = StaticFileServer;

@@ -1,13 +1,13 @@
-module.exports=CallbackHandlers;
+module.exports=callbackHandlers;
 
-function CallbackHandlers(request) {
+function callbackHandlers(request) {
     var handler,
         rules=reloadRules(),
         rulesSize=Object.keys(rules).length;
     for(var i=0;i< rulesSize;i++) {
         var rule=rules[i];
         if(rule.matches(request)) {
-            return rule.requestHandler.bind(rule);
+            return rule.requestHandler;
         }
     }
     return null;
