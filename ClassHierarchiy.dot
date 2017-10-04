@@ -1,0 +1,11 @@
+digraph g{
+  ForwardRequest -> RequestHandler [label="is-a"]
+  ForwardRequest -> ResponseHandler [label="has-a"]
+  Proxy -> ForwardRequest [label="is-a"]
+  Proxy -> PathRegexMatcher [label="has-a"]
+  RequestHandler -> Processor [label="is-a"]
+  SetupRequestProtocol -> http [label="has-a"]
+  SetupRequestProtocol -> https [label="has-a"]
+  http -> Server [label="is-a"]
+  https -> Server [label="is-a"]
+}
